@@ -40,8 +40,21 @@
             background-size: cover; background-position: center; z-index: 5;
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
         }
-        #origin-node { bottom: 10vh; background-image: url('https://i.pinimg.com/736x/b3/6c/3f/b36c3f79e24555793b2a8bcb988aa3a1.jpg'); } /* ใส่รูปจุดเริ่มตรงนี้ */
-        #dest-node { top: 10vh; background-image: url('https://i.pinimg.com/736x/dc/df/d7/dcdfd7b531c824edad87a92ec9fa853d.jpg'); } /* ใส่รูปปลายทางตรงนี้ */
+       /* รูปจุดเริ่มต้น (ด้านล่าง) */
+#origin-node { 
+    bottom: 10vh; 
+    background-image: url('cat.jpg'); /* เปลี่ยนชื่อให้ตรงกับไฟล์รูปในเครื่อง */
+    background-size: cover; 
+    background-position: center;
+} 
+
+/* รูปปลายทาง (ด้านบน) */
+#dest-node { 
+    top: 10vh; 
+    background-image: url('dog.jpg'); /* เปลี่ยนชื่อให้ตรงกับไฟล์รูปในเครื่อง */
+    background-size: cover; 
+    background-position: center;
+}
 
         /* ก้อนเมฆที่ออกมาจากจุดเริ่ม */
         .mini-cloud {
@@ -74,6 +87,7 @@
 </head>
 <body>
 
+    <audio id="bg-music" loop><source src="ไม่ขอก็จะให้.mp3" type="audio/mpeg"></audio>
 
     <div id="prep-area">
         <div id="countdown" class="timer">00:00:00</div>
@@ -101,8 +115,8 @@
 
     <script>
         // --- !!! ตั้งค่าเวลาตรงนี้ !!! ---
-        const takeoffTime = new Date("2026-04-06T22:30:00").getTime();
-        const landingTime = new Date("2026-04-06T22:40:30").getTime(); 
+        const takeoffTime = new Date("2026-04-06T22:42:00").getTime();
+        const landingTime = new Date("2026-04-06T23:50:30").getTime(); 
         
         const music = document.getElementById('bg-music');
         const planeWrap = document.getElementById('plane-wrapper');
