@@ -3,121 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Tracking ✈️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <title>Your Special Flight ✈️</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Kanit', sans-serif; background: #aad3df; }
-
-        /* 1. หน้านับถอยหลัง */
-        #prep-area {
-            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; 
-            background: white; z-index: 2000;
+        :root {
+            --primary-pink: #ff85a1;
+            --sky-blue: #aad3df;
         }
+        body {
+            margin: 0;
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--sky-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+        #app { 
+            width: 85%; 
+            max-width: 400px; 
+            padding: 30px 15px; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            position: relative; 
+            z-index: 10; 
+        }
+        
+        /* 1. ปรับหน้านับเวลาให้เล็กลงเหมาะสมกับมือถือ */
         .timer { 
-            font-size: 5rem; font-weight: bold; color: #ff85a1; font-family: monospace; 
-            border: 5px solid #ff85a1; padding: 20px 40px; border-radius: 20px;
+            font-size: 2.8rem; 
+            font-weight: bold; 
+            color: var(--primary-pink); 
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 2px;
+        }
+        #status-label { color: #888; font-size: 0.9rem; margin-bottom: 10px; }
+        
+        /* 2. หน้าจอขณะบินแนวตั้ง */
+        #flight-area {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 60vh; /* ปรับให้พอดีหน้าจอมือถือ */
+            background: var(--sky-blue);
+            border-radius: 15px;
+            overflow: hidden;
         }
 
-        /* 2. หน้าจอขณะบิน */
-        #flight-window {
-            position: relative; width: 100vw; height: 100vh; display: none;
-            background-image: url('https://t4.ftcdn.net/jpg/03/43/50/35/360_F_343503546_K5gj6peIEScCA0HxEKv4QIhTnkr68YbJ.jpg');
+        /* เส้นทางการบิน */
+        #vertical-path {
+            position: absolute;
+            width: 6px;
+            height: 80%;
+            background: rgba(255, 255, 255, 0.5);
+            left: 50%;
+            top: 10%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+
+        /* จุดหมาย (รูปแมว) */
+        #dest-node {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background-image: url('cat.jpg'); /* เปลี่ยนชื่อไฟล์รูปจุดหมายตรงนี้ */
             background-size: cover;
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .dest-label {
+            position: absolute;
+            top: -25px;
+            background: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            white-space: nowrap;
         }
 
-        #path-container {
-            position: absolute; width: 10px; height: 70vh; left: 50%; top: 15vh;
-            transform: translateX(-50%); z-index: 2;
-        }
-        #line-future { position: absolute; width: 100%; height: 100%; background: white; bottom: 0; }
-        #line-past { position: absolute; width: 100%; height: 0; background: rgba(255, 255, 255, 0.4); bottom: 0; }
-
-        .node {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 80px; border-radius: 50%; border: 3px solid white;
-            background-size: cover; background-position: center; z-index: 5;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-        }
-        #origin-node { bottom: 10vh; background-image: url('cat.jpg'); } 
-        #dest-node { top: 10vh; background-image: url('dog.jpg'); }
-
-        .mini-cloud {
-            position: absolute; color: white; font-size: 20px; z-index: 4;
-            pointer-events: none; animation: cloud-float 2s ease-out forwards;
-        }
-        @keyframes cloud-float {
-            0% { transform: translate(-50%, 0) scale(0.5); opacity: 1; }
-            100% { transform: translate(calc(-50% + var(--x)), -100px) scale(1.5); opacity: 0; }
-        }
-
+        /* เครื่องบินขยับขึ้น */
         #plane-wrapper {
-            position: absolute; left: 50%; bottom: 15vh; 
-            transform: translateX(-50%); z-index: 10;
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: bottom 0.5s linear;
         }
-        #plane-img { width: 70px; height: auto; }
+        #plane-icon { font-size: 40px; display: block; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
 
-        .cloud-bubble {
-            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 8px 15px; border-radius: 20px;
-            font-weight: bold; white-space: nowrap; font-size: 0.8rem; box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        /* ก้อนเมฆเล็กๆ */
+        .cloud-mini {
+            position: absolute;
+            color: white;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 4;
+            animation: moveCloud 2s linear forwards;
+        }
+        @keyframes moveCloud {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(100px) scale(1.5); opacity: 0; }
         }
 
-        #landed-screen {
-            position: fixed; inset: 0; background: white; z-index: 3000;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
+        canvas#fireworks { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
         .hidden { display: none !important; }
+        img#couple-img { max-width: 100%; border-radius: 10px; border: 5px solid white; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <audio id="bg-music" loop><source src="ไม่ขอก็จะให้.mp3" type="audio/mpeg"></audio>
+    <canvas id="fireworks"></canvas>
+    
+    <audio id="bg-music">
+        <source src="ไม่ขอก็จะให้.mp3" type="audio/mpeg">
+    </audio>
 
-    <div id="prep-area">
-        <div id="countdown" class="timer">00:00:00</div>
-    </div>
-
-    <div id="flight-window">
-        <div id="origin-node" class="node"></div>
-        <div id="dest-node" class="node">
-            <div class="cloud-bubble">Waiting for you!</div>
+    <div id="app">
+        <div id="prep-area">
+            <div id="status-label">อีกไม่นานจะเจอกันแล้ว...</div>
+            <div id="countdown" class="timer">00:00:00</div>
         </div>
-        <div id="path-container">
-            <div id="line-future"></div>
-            <div id="line-past"></div>
-        </div>
-        <div id="plane-wrapper">
-            <div style="font-size: 40px;">✈️</div> </div>
-    </div>
 
-    <div id="landed-screen">
-        <h1 style="color: #ff85a1;">Reached Destination! 💖</h1>
-        <p>เจอกันนะคนสวย!</p>
+        <div id="flight-area">
+            <div id="dest-node">
+                <div class="dest-label">Waiting for you!</div>
+            </div>
+            <div id="vertical-path"></div>
+            <div id="plane-wrapper">
+                <div id="plane-icon">✈️</div>
+            </div>
+            <div id="cloud-container"></div>
+            <h3 style="position: absolute; bottom: 10px; width: 100%; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                กำลังเดินทางมาหาแล้วนะ... 🎵
+            </h3>
+        </div>
+
+        <div id="landed-area" class="hidden">
+            <h2 style="color: var(--primary-pink);">เย้! ถึงที่หมายแล้ว 💖</h2>
+            <img src="dog.jpg" alt="Our Photo" id="couple-img"> <p>คิดถึงที่สุดเลย!</p>
+        </div>
     </div>
 
     <script>
-        // *** ตั้งเวลาเป็นอนาคตเพื่อให้นับถอยหลังทำงาน ***
-        const takeoffTime = new Date("2026-04-07T10:00:00+07:00").getTime();
-        const landingTime = new Date("2026-04-07T11:00:00+07:00").getTime();
-
+        // --- !!! ตั้งเวลาตรงนี้ (ระบุ Timezone +07:00 เพื่อให้ตรงกันทุกเครื่อง) !!! ---
+        const takeoffTime = new Date("2026-04-06T23:12:00+07:00").getTime();
+        const landingTime = new Date("2026-04-06T23:15:00+07:00").getTime(); 
+        
         const music = document.getElementById('bg-music');
-        const planeWrap = document.getElementById('plane-wrapper');
-        const linePast = document.getElementById('line-past');
-        const flightWin = document.getElementById('flight-window');
-        const prepArea = document.getElementById('prep-area');
-        const landedScreen = document.getElementById('landed-screen');
+        let musicStarted = false;
 
-        let cloudInterval;
+        function updateStatus() {
+            const now = new Date().getTime();
+            
+            if (now < takeoffTime) {
+                displayTime(takeoffTime - now);
+            } 
+            else if (now >= takeoffTime && now < landingTime) {
+                showFlyingMode();
+                const progress = (now - takeoffTime) / (landingTime - takeoffTime);
+                
+                // เลื่อนเครื่องบินจากล่าง (10%) ขึ้นบน (80%)
+                const startPos = 10;
+                const endPos = 80;
+                const currentPos = startPos + (progress * (endPos - startPos));
+                document.getElementById('plane-wrapper').style.bottom = currentPos + "%";
+
+                // สร้างเมฆใต้วงกลม/เครื่องบิน
+                createCloud();
+
+                if (!musicStarted) {
+                    music.play().catch(e => console.log("Click screen to play sound"));
+                    musicStarted = true;
+                }
+            } 
+            else {
+                showLandedMode();
+            }
+        }
 
         function createCloud() {
-            const cloud = document.createElement('div');
-            cloud.innerHTML = '☁️';
-            cloud.className = 'mini-cloud';
-            cloud.style.left = '50%';
-            cloud.style.bottom = '15vh';
-            cloud.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
-            flightWin.appendChild(cloud);
-            setTimeout(() => cloud.remove(), 2000);
+            const container = document.getElementById('cloud-container');
+            if (Math.random() > 0.8) { // ไม่ให้เมฆเยอะเกินไป
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud-mini';
+                cloud.innerHTML = '☁️';
+                const planePos = document.getElementById('plane-wrapper').getBoundingClientRect();
+                cloud.style.left = (Math.random() * 40 + 30) + "%"; 
+                cloud.style.bottom = document.getElementById('plane-wrapper').style.bottom;
+                container.appendChild(cloud);
+                setTimeout(() => cloud.remove(), 2000);
+            }
         }
 
         function displayTime(ms) {
@@ -127,47 +212,53 @@
             document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
         }
 
-        function mainLoop() {
-            const now = new Date().getTime();
-
-            if (now < takeoffTime) {
-                // โหมดนับถอยหลัง
-                prepArea.classList.remove('hidden');
-                flightWin.style.display = 'none';
-                displayTime(takeoffTime - now);
-            } 
-            else if (now >= takeoffTime && now < landingTime) {
-                // โหมดกำลังบิน
-                prepArea.classList.add('hidden');
-                flightWin.style.display = 'block';
-                
-                const progress = (now - takeoffTime) / (landingTime - takeoffTime);
-                if (music.paused) music.play().catch(() => {});
-
-                // เลื่อนเครื่องบิน
-                const totalDist = window.innerHeight * 0.7;
-                const currentMove = progress * totalDist;
-                planeWrap.style.transform = `translate(-50%, -${currentMove}px)`;
-
-                // ปรับเส้น
-                linePast.style.height = `${progress * 100}%`;
-
-                if (!cloudInterval) {
-                    cloudInterval = setInterval(createCloud, 400);
-                }
-            } 
-            else {
-                // โหมดถึงแล้ว
-                clearInterval(cloudInterval);
-                flightWin.style.display = 'none';
-                prepArea.classList.add('hidden');
-                landedScreen.style.display = 'flex';
-                music.pause();
+        function showFlyingMode() {
+            if (!window.fireworksTriggered) {
+                triggerFireworks(); // จุดพลุตอนเริ่มบิน
+                window.fireworksTriggered = true;
             }
+            document.getElementById('prep-area').classList.add('hidden');
+            document.getElementById('flight-area').style.display = 'block';
         }
 
-        // รัน Loop ทุกๆ 50ms
-        setInterval(mainLoop, 50);
+        function showLandedMode() {
+            document.getElementById('flight-area').style.display = 'none';
+            document.getElementById('landed-area').classList.remove('hidden');
+            music.pause();
+        }
+
+        // ระบบพลุ (Firework)
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function triggerFireworks() {
+            const particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() * -15) - 10,
+                    alpha: 1,
+                    color: `hsl(${Math.random() * 360}, 100%, 70%)`
+                });
+            }
+            function anim() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.alpha -= 0.01;
+                    ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill();
+                    if (p.alpha <= 0) particles.splice(i, 1);
+                });
+                if (particles.length > 0) requestAnimationFrame(anim);
+            }
+            anim();
+        }
+
+        setInterval(updateStatus, 100); // อัปเดตเร็วขึ้นเพื่อให้เครื่องบินวิ่งลื่น (0.1 วินาที)
     </script>
 </body>
 </html>
