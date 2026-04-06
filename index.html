@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Tracking ✈️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Kanit', sans-serif; background: #aad3df; }
+
+        /* 1. หน้านับถอยหลัง (กรอบขาว) */
+        #prep-area {
+            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; 
+            background: white; z-index: 2000;
+        }
+        .timer { 
+            font-size: 5rem; font-weight: bold; color: #ff85a1; font-family: monospace; 
+            border: 5px solid #ffffff; padding: 20px 40px; 
+        }
+
+        /* 2. หน้าจอขณะบิน */
+        #flight-window {
+            position: relative; width: 100vw; height: 100vh; display: none;
+            background-image: url('');
+            background-size: cover;
+        }
+
+        /* เส้นทางบิน */
+        #path-container {
+            position: absolute; width: 10px; height: 70vh; left: 50%; top: 15vh;
+            transform: translateX(-50%); z-index: 2;
+        }
+        #line-future { position: absolute; width: 100%; height: 100%; background: white; bottom: 0; }
+        #line-past { position: absolute; width: 100%; height: 0; background: rgba(255, 255, 255, 0.4); bottom: 0; }
+
+        /* วงกลมจุดเริ่มและจุดจบ */
+        .node {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 80px; border-radius: 50%; border: 3px solid white;
+            background-size: cover; background-position: center; z-index: 5;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        #origin-node { bottom: 10vh; background-image: url('https://i.pinimg.com/736x/b3/6c/3f/b36c3f79e24555793b2a8bcb988aa3a1.jpg'); } /* ใส่รูปจุดเริ่มตรงนี้ */
+        #dest-node { top: 10vh; background-image: url('https://i.pinimg.com/736x/dc/df/d7/dcdfd7b531c824edad87a92ec9fa853d.jpg'); } /* ใส่รูปปลายทางตรงนี้ */
+
+        /* ก้อนเมฆที่ออกมาจากจุดเริ่ม */
+        .mini-cloud {
+            position: absolute; color: white; font-size: 20px; z-index: 4;
+            pointer-events: none; animation: cloud-float 2s ease-out forwards;
+        }
+        @keyframes cloud-float {
+            0% { transform: translate(-50%, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--x)), -100px) scale(1.5); opacity: 0; }
+        }
+
+        /* เครื่องบิน */
+        #plane-wrapper {
+            position: absolute; left: 50%; bottom: 15vh; 
+            transform: translateX(-50%); z-index: 10;
+        }
+
+        .cloud-bubble {
+            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 8px 15px; border-radius: 20px;
+            font-weight: bold; white-space: nowrap; font-size: 0.8rem; box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        #landed-screen {
+            position: fixed; inset: 0; background: white; z-index: 3000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop><source src="ไม่ขอก็จะให้.mp3" type="audio/mpeg"></audio>
+
+    <div id="prep-area">
+        <div id="countdown" class="timer">00:00:00</div>
+    </div>
+
+    <div id="flight-window">
+        <div id="origin-node" class="node">
+        </div>
+        
+        <div id="dest-node" class="node">
+            <div class="cloud-bubble">Waiting for you!</div>
+        </div>
+
+        <div id="path-container">
+            <div id="line-future"></div>
+            <div id="line-past"></div>
+        </div>
+
+    </div>
+
+    <div id="landed-screen">
+        <h1 style="color: #ff85a1;">Reached Destination! 💖</h1>
+        <p>เจอกันนะคนสวย!</p>
+    </div>
+
+    <script>
+        // --- !!! ตั้งค่าเวลาตรงนี้ !!! ---
+        const takeoffTime = new Date("2026-04-06T22:30:00").getTime();
+        const landingTime = new Date("2026-04-06T22:40:30").getTime(); 
+        
+        const music = document.getElementById('bg-music');
+        const planeWrap = document.getElementById('plane-wrapper');
+        const linePast = document.getElementById('line-past');
+        const flightWin = document.getElementById('flight-window');
+        const originNode = document.getElementById('origin-node');
+
+        let cloudInterval;
+
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.innerHTML = '☁️';
+            cloud.className = 'mini-cloud';
+            cloud.style.left = '50%';
+            cloud.style.bottom = '15vh';
+            cloud.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
+            flightWin.appendChild(cloud);
+            setTimeout(() => cloud.remove(), 2000);
+        }
+
+        function mainLoop() {
+            const now = new Date().getTime();
+
+            if (now < takeoffTime) {
+                displayTime(takeoffTime - now);
+            } 
+            else if (now >= takeoffTime && now < landingTime) {
+                document.getElementById('prep-area').classList.add('hidden');
+                flightWin.style.display = 'block';
+                
+                const progress = (now - takeoffTime) / (landingTime - takeoffTime);
+                if (music.paused) music.play().catch(() => {});
+
+                // ระยะทางทั้งหมดระหว่างจุดเริ่มกับจุดจบ (70vh คือความสูงเส้น)
+                const totalDist = window.innerHeight * 0.7;
+                const currentMove = progress * totalDist;
+
+                // เลื่อนเครื่องบินขึ้น
+                planeWrap.style.transform = `translate(-50%, -${currentMove}px)`;
+
+                // เส้นข้างหลังยาวขึ้น
+                linePast.style.height = `${progress * 100}%`;
+
+                // สร้างเมฆออกจากจุดเริ่ม
+                if (!cloudInterval) {
+                    cloudInterval = setInterval(createCloud, 400);
+                }
+            } 
+            else {
+                clearInterval(cloudInterval);
+                flightWin.style.display = 'none';
+                document.getElementById('landed-screen').style.display = 'flex';
+                music.pause();
+            }
+        }
+
+        function displayTime(ms) {
+            const h = Math.floor(ms / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+        }
+
+        setInterval(mainLoop, 50);
+        // ระบบพลุ
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        function triggerFireworks() {
+            const particles = [];
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: canvas.width / 2, y: canvas.height,
+                    vx: (Math.random() - 0.5) * 8, vy: (Math.random() * -15) - 5,
+                    alpha: 1, color: `hsl(${Math.random() * 360}, 100%, 60%)`
+                });
+            }
+            function anim() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= 0.01;
+                    ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill();
+                    if (p.alpha <= 0) particles.splice(i, 1);
+                });
+                if (particles.length > 0) requestAnimationFrame(anim);
+            }
+            anim();
+        }
+
+        setInterval(updateStatus, 1000);
+    </script>
+</body>
+</html>
