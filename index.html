@@ -114,9 +114,15 @@
     </div>
 
     <script>
-        // --- !!! ตั้งค่าเวลาตรงนี้ !!! ---
-        const takeoffTime = new Date("2026-04-06T22:45:00").getTime();
-        const landingTime = new Date("2026-04-06T23:50:30").getTime(); 
+        // ระบุปี-เดือน-วันTชั่วโมง:นาที:วินาที+07:00 (เวลาไทย)
+const takeoffTime = new Date("2026-04-06T22:50:00+07:00").getTime();
+const landingTime = new Date("2026-04-06T23:00:00+07:00").getTime();
+
+// และตรวจสอบว่าฟังก์ชัน mainLoop ถูกเรียกใช้ถูกต้อง
+function mainLoop() {
+    const now = new Date().getTime(); 
+    // ... โค้ดเดิมของคุณ ...
+}
         
         const music = document.getElementById('bg-music');
         const planeWrap = document.getElementById('plane-wrapper');
