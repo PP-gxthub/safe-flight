@@ -18,65 +18,81 @@
             overflow: hidden; text-align: center;
         }
 
-        /* 1. หน้านับเวลา */
+        /* พื้นหลังบับเบิ้ล */
+        #global-bg-elements {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+        }
+
+        .floating-item {
+            position: absolute; bottom: -50px; pointer-events: none;
+            animation: floatUp 6s linear forwards; z-index: 2;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+        }
+        .bubble {
+            background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%; box-shadow: inset -5px -5px 10px rgba(255,255,255,0.5), inset 5px 5px 10px rgba(0,0,0,0.05);
+        }
+
+        /* 1. หน้านับเวลา & พลุหลัง Timer */
         #prep-area {
-            position: fixed; inset: 0;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: var(--sky-blue); z-index: 1000;
+            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        #timer-fireworks {
+            position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 999;
         }
         .timer-box { 
-            width: 85%; max-width: 350px; padding: 25px; 
-            background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            position: relative; z-index: 1010; 
+            width: 280px; padding: 25px; background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            backdrop-filter: blur(5px); position: relative; z-index: 1001;
         }
         .timer { font-size: 2.8rem; font-weight: bold; color: var(--primary-pink); font-family: monospace; }
+
+        /* 2. หน้าบิน (ลบเส้นทางและเมฆออกตามสั่ง) */
+        #flight-area { display: none; position: fixed; inset: 0; z-index: 500; }
         
-        /* ของลอยในหน้านับเวลา */
-        .prep-float-item {
-            position: absolute; bottom: -100px;
-            animation: floatUpPrep 6s linear forwards; z-index: 1005;
-        }
-        .pig-float { width: 50px; height: auto; }
-        @keyframes floatUpPrep {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-110vh) rotate(20deg); opacity: 0; }
+        .avatar-circle {
+            width: 70px; height: 70px; border-radius: 50%;
+            border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            background-size: cover; background-position: center;
         }
 
-        /* 2. หน้าบิน (เห็นต้นทาง-ปลายทาง) */
-        #flight-area { display: none; position: fixed; inset: 0; background: var(--sky-blue); z-index: 500; }
-        #vertical-path {
-            position: absolute; width: 12px; height: 70vh;
-            background: rgba(255, 255, 255, 0.4);
-            left: 50%; top: 15vh; transform: translateX(-50%); z-index: 510;
+        #dest-node { 
+            position: absolute; top: 12vh; left: 50%; transform: translateX(-50%);
+            z-index: 520;
         }
-        .node {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 80px; border-radius: 50%; border: 4px solid white;
-            background-size: cover; background-position: center; z-index: 520;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        #origin-node { bottom: 10vh; background-image: url('cat.jpg'); }
-        #dest-node { top: 10vh; background-image: url('dog.jpg'); }
-        
-        .waiting-bubble {
-            position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 5px 12px; border-radius: 15px;
-            font-size: 0.8rem; font-weight: bold; color: var(--primary-pink);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); white-space: nowrap;
-        }
+        .dog-avatar { background-image: url('dog.jpg'); }
 
         #plane-wrapper {
-            position: absolute; left: 50%; bottom: 15vh;
+            position: absolute; left: 50%; bottom: 10vh;
             transform: translateX(-50%); z-index: 550;
         }
+        .cat-avatar { background-image: url('cat.jpg'); }
 
-        /* 3. Pop-up & Final Screen */
+        .wiggle-bubble {
+            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 6px 15px; border-radius: 15px;
+            font-size: 0.85rem; color: var(--primary-pink); white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: bounceWiggle 2s infinite;
+        }
+        @keyframes bounceWiggle {
+            0%, 100% { transform: translateY(0) translateX(-50%); }
+            50% { transform: translateY(-10px) translateX(-50%); }
+        }
+
+        /* 3. Pop-up & Final */
         #landed-popup-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.3);
             display: none; justify-content: center; align-items: center; z-index: 2000;
         }
+        #fireworks-overlay { position: fixed; inset: 0; z-index: 1990; pointer-events: none; }
+
         .popup-card {
             background: white; width: 80%; max-width: 300px; padding: 30px;
             border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
@@ -84,7 +100,7 @@
         .btn-confirm {
             background: var(--success-green); color: white; border: none;
             padding: 12px 35px; border-radius: 50px; font-size: 1rem;
-            margin-top: 20px; cursor: pointer; transition: 0.3s; font-family: 'Kanit';
+            margin-top: 20px; cursor: pointer; font-family: 'Kanit';
         }
 
         #final-photo-area {
@@ -96,27 +112,26 @@
             width: 100%; border-radius: 20px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 6px solid white;
         }
-        .chat-bubble {
+        .chat-bubble-final {
             position: absolute; top: -60px; right: -10px;
             background: var(--primary-pink); color: white;
             padding: 10px 20px; border-radius: 20px 20px 20px 0;
-            font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            animation: bounce 2s infinite;
+            font-size: 0.9rem; animation: bounceFinal 2s infinite;
         }
-
         @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes bounceFinal { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        canvas#fireworks { position: fixed; inset: 0; z-index: 3000; pointer-events: none; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <canvas id="fireworks"></canvas>
-    <audio id="bg-music" loop><source src="เพลงของคุณ.mp3" type="audio/mpeg"></audio>
+    <canvas id="fireworks-overlay"></canvas>
+    
+    <div id="global-bg-elements"></div>
 
     <div id="prep-area">
+        <canvas id="timer-fireworks"></canvas>
         <div class="timer-box">
             <div style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">หมูจะได้บินในอีก</div>
             <div id="countdown" class="timer">00:00:00</div>
@@ -124,95 +139,87 @@
     </div>
 
     <div id="flight-area">
-        <div id="origin-node" class="node"></div>
-        <div id="dest-node" class="node">
-            <div class="waiting-bubble">Waiting for you!</div>
+        <div id="dest-node">
+            <div class="wiggle-bubble">เค้ารอหมูอ้วน</div>
+            <div class="avatar-circle dog-avatar"></div>
         </div>
-        <div id="vertical-path"></div>
         <div id="plane-wrapper">
-            <div style="font-size: 45px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">✈️</div>
-        </div>
+            <div class="avatar-circle cat-avatar"></div>
+            </div>
     </div>
 
     <div id="landed-popup-overlay">
         <div class="popup-card">
-            <h2 style="color: var(--primary-pink); margin: 0; font-size: 1.8rem;">ถึงแล้วใช่ไหม!</h2>
-            <p style="color: #555; margin: 10px 0 5px; font-size: 1rem;">เค้ารอชั้นล่างสุด ประตู 12</p>
-            <p style="color: #888; margin: 0; font-size: 0.85rem;">มาถึงแล้วกอดได้นะ ^^</p>
+            <p style="color: var(--primary-pink); margin: 10px 0 5px; font-size: 1.5rem;"><b>คงถึงแล้วใช่ไหม</b></p>
+            <p style="color: #8e8e8e; margin: 10px 0 5px; font-size: 0.9rem;">ตอนนี้รออยู่ชั้นล่างสุด ประตู 12</p>
             <button class="btn-confirm" onclick="showFinalSurprise()">รับทราบ</button>
         </div>
     </div>
 
     <div id="final-photo-area">
         <div class="photo-wrap">
-            <div class="chat-bubble">มาถึงแล้วบอกเค้านนะ! ❤️</div>
+            <div class="chat-bubble-final">มาถึงแล้วกอดกันนะ ^^</div>
             <img src="cat.jpg" alt="Our Photo" id="couple-img">
         </div>
     </div>
 
     <script>
-        // --- ตั้งเวลาตรงนี้ ---
-        const takeoffTime = new Date("2026-04-07T16:40:15+07:00").getTime();
-        const landingTime = new Date("2026-04-07T17:00:45+07:00").getTime(); 
+        // --- 🟢 ตั้งเวลาตรงนี้ ---
+        const takeoffTime = new Date("2026-04-07T18:43:00+07:00").getTime();
+        const landingTime = new Date("2026-04-07T18:43:30+07:00").getTime(); 
         
-        const music = document.getElementById('bg-music');
-        let musicStarted = false;
-        let takeoffFireworksDone = false;
+        let landedTriggered = false;
+        let timerFireworksStarted = false;
 
-        // ฟังก์ชันสร้างของลอยในหน้านับเวลา (รูปหมู + ฟองสบู่)
-        function createPrepFloat() {
-            if (document.getElementById('prep-area').classList.contains('hidden')) return;
-            const container = document.getElementById('prep-area');
+        function spawnFloatingItem() {
+            const container = document.getElementById('global-bg-elements');
             const item = document.createElement('div');
-            item.className = 'prep-float-item';
-            
-            const isPig = Math.random() > 0.6;
-            if (isPig) {
-                item.innerHTML = `<img src="pig.png" class="pig-float">`;
+            item.className = 'floating-item';
+            const isFlight = document.getElementById('flight-area').style.display === 'block';
+            const showHeart = !isFlight && Math.random() > 0.8;
+            if (showHeart) {
+                item.innerHTML = `<span style="font-size: 14px;">❤️</span>`;
             } else {
-                item.innerHTML = `<span style="font-size: ${Math.random()*20+10}px;">🫧</span>`;
+                const size = Math.random() * 30 + 10;
+                item.className += ' bubble';
+                item.style.width = size + 'px';
+                item.style.height = size + 'px';
             }
-            
             item.style.left = Math.random() * 100 + '%';
-            item.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            item.style.animationDuration = (Math.random() * 3 + 5) + 's';
             container.appendChild(item);
             setTimeout(() => item.remove(), 7000);
         }
-        setInterval(createPrepFloat, 400);
+        setInterval(spawnFloatingItem, 500);
 
         function updateStatus() {
             const now = new Date().getTime();
             
             if (now < takeoffTime) {
-                // หน้านับถอยหลัง
                 displayTime(takeoffTime - now);
             } 
             else if (now >= takeoffTime && now < landingTime) {
-                // จังหวะเริ่มบิน (จุดพลุหนึ่งครั้งตอนเปลี่ยนหน้า)
-                if (!takeoffFireworksDone) {
-                    triggerFireworks();
-                    takeoffFireworksDone = true;
-                    // ดีเลย์เล็กน้อยก่อนซ่อนหน้านับเวลาเพื่อให้เห็นพลุ
+                // เมื่อเริ่มบิน ให้แสดงพลุที่หน้า Timer แวบหนึ่งก่อนเปลี่ยนหน้า
+                if (!timerFireworksStarted) {
+                    triggerFireworks('timer-fireworks');
+                    timerFireworksStarted = true;
+                    // ดีเลย์เล็กน้อยเพื่อให้เห็นพลุก่อนหน้าจอกลายเป็นหน้าบิน
                     setTimeout(() => {
                         document.getElementById('prep-area').classList.add('hidden');
                         document.getElementById('flight-area').style.display = 'block';
-                    }, 500);
+                    }, 800); 
                 }
 
                 const progress = (now - takeoffTime) / (landingTime - takeoffTime);
-                
-                // เลื่อนเครื่องบินบนเส้นทาง (จาก 15vh ถึง 15vh+70vh)
-                const totalDist = window.innerHeight * 0.7;
-                const currentMove = progress * totalDist;
-                document.getElementById('plane-wrapper').style.transform = `translate(-50%, -${currentMove}px)`;
-
-                if (!musicStarted) { music.play().catch(()=>{}); musicStarted = true; }
+                const startY = window.innerHeight * 0.85; 
+                const endY = window.innerHeight * 0.22; 
+                const currentY = startY - (progress * (startY - endY));
+                document.getElementById('plane-wrapper').style.top = currentY + 'px';
             } 
             else {
-                // เมื่อถึงจุดหมาย
-                if (!window.landedTriggered) {
+                if (!landedTriggered) {
                     showLandedPopup();
-                    window.landedTriggered = true;
+                    landedTriggered = true;
                 }
             }
         }
@@ -227,8 +234,7 @@
         function showLandedPopup() {
             document.getElementById('flight-area').style.display = 'none';
             document.getElementById('landed-popup-overlay').style.display = 'flex';
-            triggerFireworks(); // จุดพลุฉลองตอนถึง
-            music.pause();
+            triggerFireworks('fireworks-overlay'); 
         }
 
         function showFinalSurprise() {
@@ -236,30 +242,40 @@
             document.getElementById('final-photo-area').style.display = 'flex';
         }
 
-        // ระบบพลุ
-        function triggerFireworks() {
-            const canvas = document.getElementById('fireworks');
+        // ระบบพลุ (ใช้ได้ทั้งหน้า Timer และหน้าจบ)
+        function triggerFireworks(canvasId) {
+            const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            const particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push({
-                    x: canvas.width/2, y: canvas.height/2,
-                    vx: (Math.random()-0.5)*18, vy: (Math.random()-0.5)*18,
-                    a: 1, c: `hsl(${Math.random()*360},100%,70%)`
-                });
+            let particles = [];
+
+            function createFirework() {
+                const x = canvas.width / 2; // ยิงจากตรงกลาง
+                const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                for (let i = 0; i < 40; i++) {
+                    particles.push({
+                        x: x, y: canvas.height,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() * -12) - 5,
+                        alpha: 1, color: color
+                    });
+                }
             }
+
+            let fireworkInterval = setInterval(createFirework, 500);
             function anim() {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 particles.forEach((p,i)=>{
-                    p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.a-=0.015;
-                    ctx.globalAlpha=p.a; ctx.fillStyle=p.c;
-                    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,7); ctx.fill();
-                    if(p.a<=0) particles.splice(i,1);
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.alpha -= 0.01;
+                    ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,7); ctx.fill();
+                    if(p.alpha <= 0) particles.splice(i,1);
                 });
-                if(particles.length>0) requestAnimationFrame(anim);
+                requestAnimationFrame(anim);
             }
             anim();
+            // หยุดสร้างพลุใหม่หลังจาก 5 วินาที
+            setTimeout(() => clearInterval(fireworkInterval), 5000);
         }
 
         setInterval(updateStatus, 100);
