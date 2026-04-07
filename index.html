@@ -69,7 +69,7 @@
         }
 
         #dest-node { position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); z-index: 520; }
-        .dog-avatar { background-image: url('p.jpg'); }
+        .dog-avatar { background-image: url('p.JPG'); }
 
         #plane-wrapper {
             position: absolute; left: 50%; transform: translateX(-50%); 
@@ -143,7 +143,7 @@
         }
 
         #final-photo-area { position: fixed; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2100; }
-        .photo-wrap { position: relative; width: 400px; z-index: 2100; animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .photo-wrap { position: relative; width: 300px; z-index: 2100; animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
         
         @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -221,8 +221,8 @@
             setTimeout(() => smoke.remove(), 1200);
         }
         // ตั้งเวลา
-        const takeoffTime = new Date("2026-04-08T03:32:00+07:00").getTime();
-        const landingTime = new Date("2026-04-08T03:33:00+07:00").getTime(); 
+        const takeoffTime = new Date("2026-04-08T03:37:00+07:00").getTime();
+        const landingTime = new Date("2026-04-08T03:38:30+07:00").getTime(); 
         
         let landedTriggered = false;
         let timerFireworksStarted = false;
