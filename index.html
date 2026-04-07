@@ -39,7 +39,7 @@
             box-shadow: 20px 10px 0 rgba(255,255,255,0.4), -15px 5px 0 rgba(255,255,255,0.4);
         }
 
-        #prep-area { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        #prep-area { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
         #fireworks-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
         
         .timer-box { 
@@ -47,122 +47,98 @@
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             backdrop-filter: blur(5px); position: relative; z-index: 1001;
             transition: opacity 1.5s ease;
+            margin-bottom: 180px; /* เพิ่มระยะกันชนบับเบิ้ลลอย */
         }
         .timer { font-size: 2.8rem; font-weight: bold; color: var(--primary-pink); font-family: monospace; }
 
-        #flight-area { 
-            display: none; position: fixed; inset: 0; z-index: 500; opacity: 0; 
-            transition: opacity 1.5s ease-in; 
+        /* --- สไตล์ส่วนล่างหน้าแรก --- */
+        #prep-bottom-container {
+            position: absolute; bottom: 30px; display: flex; flex-direction: column; align-items: center; z-index: 1001;
+        }
+        .bottom-char {
+            width: 130px; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+        }
+        .bottom-bubble {
+            background: white; color: var(--primary-pink); padding: 8px 18px; border-radius: 15px 15px 15px 0;
+            font-size: 0.9rem; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            /* บับเบิ้ลขยับดุ๊กดิ๊ก */
+            animation: bubbleWiggle 2.5s infinite ease-in-out; 
+            white-space: nowrap; position: relative;
+        }
+        .bottom-bubble::after {
+            content: ''; position: absolute; bottom: -8px; left: 0;
+            border-width: 8px 8px 0 0; border-style: solid; border-color: white transparent transparent transparent;
         }
         
+        /* แก้ไขการลอย (translateY) และการเอียง (rotate) */
+        @keyframes bubbleWiggle {
+            0%, 100% { transform: rotate(-3deg) translateY(0); }
+            50% { transform: rotate(-2deg) translateY(-5px); }
+        }
+
+        /* --- ส่วนการบิน --- */
+        #flight-area { display: none; position: fixed; inset: 0; z-index: 500; opacity: 0; transition: opacity 1.5s ease-in; }
         #flight-path {
-            position: absolute; left: 50%; top: 22vh; bottom: 15vh;
-            width: 10px; transform: translateX(-50%);
-            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
-            border-radius: 2px; z-index: 510;
+            position: absolute; left: 50%; top: 22vh; bottom: 15vh; width: 10px; transform: translateX(-50%);
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.1)); border-radius: 2px; z-index: 510;
         }
-
         .avatar-circle {
-            width: 70px; height: 70px; border-radius: 50%;
-            border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            background-size: cover; background-position: center;
+            width: 70px; height: 70px; border-radius: 50%; border: 4px solid white; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15); background-size: cover; background-position: center;
         }
-
         #dest-node { position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); z-index: 520; }
         .dog-avatar { background-image: url('p.JPG'); }
-
-        #plane-wrapper {
-            position: absolute; left: 50%; transform: translateX(-50%); 
-            z-index: 550; display: flex; justify-content: center; align-items: center;
-            pointer-events: none;
-        }
+        #plane-wrapper { position: absolute; left: 50%; transform: translateX(-50%); z-index: 550; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .cat-avatar { background-image: url('mo.JPEG'); position: relative; z-index: 20; }
 
         .cloud-smoke {
-            position: absolute; 
-            background: rgba(255, 255, 255, 0.85); 
-            width: 18px; height: 18px; 
-            border-radius: 50%;
-            filter: blur(4px); 
-            pointer-events: none; z-index: 10; 
-            animation: smokeMove 1.2s ease-out forwards;
+            position: absolute; background: rgba(255, 255, 255, 0.85); width: 18px; height: 18px; border-radius: 50%;
+            filter: blur(4px); pointer-events: none; z-index: 10; animation: smokeMove 1.2s ease-out forwards;
         }
         @keyframes smokeMove {
             0% { opacity: 0.9; transform: translate(0, 0) scale(1); }
             100% { opacity: 0; transform: translate(var(--rx), 60px) scale(3.5); }
         }
 
-        .heart {
-            position: absolute; pointer-events: none; z-index: 2050; 
-            animation: heartFloat 5s linear forwards;
+        /* --- ป๊อปอัพและหน้าสุดท้าย --- */
+        #landed-popup-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.2); display: none; 
+            justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(3px);
         }
+        .popup-card {
+            background: white; width: 80%; max-width: 300px; padding: 30px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        .btn-confirm {
+            background: var(--success-green); color: white; border: none; padding: 12px 35px; 
+            border-radius: 50px; font-size: 1rem; margin-top: 20px; cursor: pointer; font-family: 'Kanit';
+        }
+
+        #final-photo-area { position: fixed; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2100; }
+        .photo-wrap { position: relative; width: 350px; z-index: 2100; animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        
+        img#couple-img { 
+            width: 100%; 
+            border-radius: 0; 
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.4)); 
+        }
+
+        .chat-bubble-final-new {
+            position: absolute; top: -60px; right: -10px; background: white; color: var(--primary-pink);
+            padding: 10px 20px; border-radius: 20px 20px 20px 0; font-size: 0.9rem;
+            animation: bounceFinal 2s infinite; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        @keyframes bounceFinal { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .heart { position: absolute; pointer-events: none; z-index: 2050; animation: heartFloat 5s linear forwards; }
         @keyframes heartFloat {
             0% { transform: translateY(0) scale(0) rotate(0deg); opacity: 0; }
             15% { opacity: 0.25; transform: translateY(-30px) scale(1.0) rotate(10deg); } 
             100% { transform: translateY(-110vh) scale(1) rotate(-20deg); opacity: 0; }
         }
 
-        .wiggle-bubble {
-            position: absolute; 
-            top: -55px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            background: white; padding: 6px 15px; border-radius: 15px;
-            font-size: 0.85rem; color: var(--primary-pink); white-space: nowrap;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            animation: bounceWiggle 2s infinite;
-        }
-        @keyframes bounceWiggle { 
-            0%, 100% { transform: translateY(0) translateX(-50%); } 
-            50% { transform: translateY(-10px) translateX(-50%); } 
-        }
-
-        .cat-bubble-new {
-            position: absolute; top: 10px; left: 85px; 
-            background: white; color: var(--primary-pink); 
-            padding: 6px 15px; border-radius: 15px 15px 15px 0;
-            font-size: 0.8rem; white-space: nowrap;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        #landed-popup-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.2);
-            display: none; justify-content: center; align-items: center; z-index: 2000;
-            backdrop-filter: blur(3px);
-        }
-
-        .popup-card {
-            background: white; width: 80%; max-width: 300px; padding: 30px;
-            border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-        }
-        .btn-confirm {
-            background: var(--success-green); color: white; border: none;
-            padding: 12px 35px; border-radius: 50px; font-size: 1rem;
-            margin-top: 20px; cursor: pointer; font-family: 'Kanit';
-        }
-
-        #final-photo-area { position: fixed; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2100; }
-        .photo-wrap { position: relative; width: 300px; z-index: 2100; animation: popIn 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        
-        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        /* แก้ไขตรงนี้: เอาขอบมนออก และเพิ่มเงาเข้มขึ้น */
-        img#couple-img { 
-            width: 100%; 
-            border-radius: 0; /* เอาขอบมนออก */
-            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4)); /* เพิ่มเงาให้รูป */
-        }
-        
-        .chat-bubble-final-new {
-            position: absolute; top: -60px; right: -10px;
-            background: white; color: var(--primary-pink);
-            padding: 10px 20px; border-radius: 20px 20px 20px 0;
-            font-size: 0.9rem; animation: bounceFinal 2s infinite;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        @keyframes bounceFinal { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -176,17 +152,20 @@
             <div style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">โมจะกลายเป็นหมูบินได้ในอีก</div>
             <div id="countdown" class="timer">00:00:00</div>
         </div>
+
+        <div id="prep-bottom-container">
+            <div class="bottom-bubble">ยังไม่ถึงเวลาคับมะมี๊</div>
+            <img src="pk.png" alt="Bottom Character" class="bottom-char">
+        </div>
     </div>
 
     <div id="flight-area">
         <div id="flight-path"></div> 
         <div id="dest-node">
-            <div class="wiggle-bubble">เค้ารอหมูอ้วน</div>
             <div class="avatar-circle dog-avatar"></div>
         </div>
         <div id="plane-wrapper">
             <div id="smoke-container"></div>
-            <div class="cat-bubble-new">หมูอ้วนกำลังไปหา</div>
             <div class="avatar-circle cat-avatar"></div>
         </div>
     </div>
@@ -215,14 +194,13 @@
             smoke.className = 'cloud-smoke';
             const rx = (Math.random() * 50 - 25) + 'px';
             smoke.style.setProperty('--rx', rx);
-            smoke.style.left = '26px'; 
-            smoke.style.top = '60px'; 
+            smoke.style.left = '26px'; smoke.style.top = '60px'; 
             container.appendChild(smoke);
             setTimeout(() => smoke.remove(), 1200);
         }
-        // ตั้งเวลา
-        const takeoffTime = new Date("2026-04-08T03:37:00+07:00").getTime();
-        const landingTime = new Date("2026-04-08T03:38:30+07:00").getTime(); 
+
+        const takeoffTime = new Date("2026-04-09T03:37:00+07:00").getTime();
+        const landingTime = new Date("2026-04-09T03:38:30+07:00").getTime(); 
         
         let landedTriggered = false;
         let timerFireworksStarted = false;
@@ -292,7 +270,9 @@
                     timerFireworksStarted = true;
                     isTransitioning = true;
                     const timerUI = document.getElementById('timer-ui');
+                    const bottomUI = document.getElementById('prep-bottom-container');
                     timerUI.style.opacity = '0';
+                    if(bottomUI) bottomUI.style.opacity = '0';
                     triggerFireworksEffect(); 
                     setTimeout(() => {
                         document.getElementById('prep-area').classList.add('hidden');
